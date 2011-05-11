@@ -23,28 +23,31 @@
 #include <boost/bind.hpp>
 
 using boost::asio::ip::tcp;
+using boost::bind;
 
-minecraft_listener::minecraft_listener(boost::asio::io_service & io_service) :
+minecraft_listener::minecraft_listener(boost::asio::io_service & s) :
     m_io_service(io_service),
     m_acceptor(io_service,
                tcp::endpoint(tcp::v4(), 25565))
 {
   m_new_connection = new minecraft_connection(m_io_service);
   m_acceptor.async_accept(m_new_connection->socket(),
-      boost::bind(&minecraft_listener::handle_accept,
-                  this,
-                  boost::asio::placeholders::error));
+      bind(&minecraft_listener::handle_accept,
+           this,
+           boost::asio::placeholders::error));
 }
 
 void minecraft_listener::handle_accept(const boost::system::error_code & e)
 {
   if (!e) {
+    assert(m_new_connection != 0);
+    m_new_connection->start();
     // accept
     m_new_connection = new minecraft_connection(m_io_service);
     m_acceptor.async_accept(m_new_connection->socket(),
-        boost::bind(&minecraft_listener::handle_accept,
-                    this,
-                    boost::asio::placeholders::error));
+        bind(&minecraft_listener::handle_accept,
+             this,
+             boost::asio::placeholders::error));
 
   }
 }
