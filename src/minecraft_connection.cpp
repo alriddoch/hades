@@ -19,11 +19,33 @@
 
 #include "minecraft_connection.h"
 
+#include <boost/bind.hpp>
+
+#include <iostream>
+
+using boost::bind;
+
 namespace minecraft {
 
 connection::connection(boost::asio::io_service & s) :
     m_socket(s)
 {
+}
+
+void connection::start()
+{
+    std::cout << "New connection" << std::endl << std::flush;
+    m_socket.async_read_some(boost::asio::buffer(m_buffer),
+        bind(&connection::handle_read, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
+
+}
+
+void connection::handle_read(const boost::system::error_code & e,
+                             std::size_t bytes)
+{
+    std::cout << "New data" << std::endl << std::flush;
 }
 
 } // namespace minecraft

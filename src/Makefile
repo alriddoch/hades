@@ -1,4 +1,7 @@
-CXXFLAGS=-Wall -g
+CXXFLAGS=-Wall -g -pthread
 LDLIBS=-lboost_system
 
-hades: hades.o minecraft_listener.o minecraft_connection.o
+OBJS=hades.o minecraft_listener.o minecraft_connection.o
+
+hades: $(OBJS)
+	g++ -pthread $(OBJS) $(LDLIBS) -o hades

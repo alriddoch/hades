@@ -16,6 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+#include <boost/array.hpp>
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -28,9 +29,17 @@ class connection : private boost::noncopyable
   public:
     explicit connection(boost::asio::io_service & s);
 
+    void start();
+
     socket_t & socket();
   private:
+    void handle_read(const boost::system::error_code& e,
+                     std::size_t bytes_transferred);
+
+
     socket_t m_socket;
+
+    boost::array<char, 8192> m_buffer;
 };
 
 inline connection::socket_t & connection::socket()

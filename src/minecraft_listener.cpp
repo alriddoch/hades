@@ -47,7 +47,7 @@ void listener::handle_accept(const boost::system::error_code & e)
 {
   if (!e) {
     assert(m_new_connection != 0);
-    // m_new_connection->start();
+    m_new_connection->start();
     // accept
 
     setup_accept();
