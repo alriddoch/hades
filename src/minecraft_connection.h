@@ -21,15 +21,17 @@
 
 class minecraft_connection : private boost::noncopyable
 {
+  private:
+    typedef boost::asio::ip::tcp::socket socket_t;
   public:
     explicit minecraft_connection(boost::asio::io_service & s);
 
-    boost::asio::ip::tcp::socket & socket();
+    socket_t & socket();
   private:
-    boost::asio::ip::tcp::socket m_socket;
+    socket_t m_socket;
 };
 
-inline boost::asio::ip::tcp::socket & minecraft_connection::socket()
+inline minecraft_connection::socket_t & minecraft_connection::socket()
 {
   return m_socket;
 }
