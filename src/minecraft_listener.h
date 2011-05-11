@@ -27,6 +27,7 @@ class minecraft_listener : private boost::noncopyable
     minecraft_listener(boost::asio::io_service & io_service);
   
   private:
+    void setup_accept();
     void handle_accept(const boost::system::error_code& e);
 
     boost::asio::io_service & m_io_service;
