@@ -19,7 +19,11 @@
 
 #include "minecraft_connection.h"
 
-minecraft_connection::minecraft_connection(boost::asio::io_service & s) :
+namespace minecraft {
+
+connection::connection(boost::asio::io_service & s) :
     m_socket(s)
 {
 }
+
+} // namespace minecraft

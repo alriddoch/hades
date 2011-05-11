@@ -19,12 +19,14 @@
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 
-class minecraft_connection;
+namespace minecraft {
 
-class minecraft_listener : private boost::noncopyable
+class connection;
+
+class listener : private boost::noncopyable
 {
   public:
-    minecraft_listener(boost::asio::io_service & io_service);
+    listener(boost::asio::io_service & io_service);
   
   private:
     void setup_accept();
@@ -32,5 +34,7 @@ class minecraft_listener : private boost::noncopyable
 
     boost::asio::io_service & m_io_service;
     boost::asio::ip::tcp::acceptor m_acceptor;
-    minecraft_connection * m_new_connection;
+    connection * m_new_connection;
 };
+
+} // namespace minecraft

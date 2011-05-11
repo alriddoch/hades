@@ -19,19 +19,23 @@
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 
-class minecraft_connection : private boost::noncopyable
+namespace minecraft {
+
+class connection : private boost::noncopyable
 {
   private:
     typedef boost::asio::ip::tcp::socket socket_t;
   public:
-    explicit minecraft_connection(boost::asio::io_service & s);
+    explicit connection(boost::asio::io_service & s);
 
     socket_t & socket();
   private:
     socket_t m_socket;
 };
 
-inline minecraft_connection::socket_t & minecraft_connection::socket()
+inline connection::socket_t & connection::socket()
 {
   return m_socket;
 }
+
+} // namespace minecraft

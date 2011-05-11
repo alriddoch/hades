@@ -21,7 +21,7 @@
 int main(int argc, char ** argv)
 {
     boost::asio::io_service io_service;
-    minecraft_listener ml(io_service);
+    minecraft::listener ml(io_service);
 
     io_service.run();
 
