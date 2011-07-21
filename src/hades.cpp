@@ -16,12 +16,14 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+#include "http_listener.h"
 #include "minecraft_listener.h"
 
 int main(int argc, char ** argv)
 {
     boost::asio::io_service io_service;
     minecraft::listener ml(io_service);
+    http::listener hl(io_service);
 
     io_service.run();
 
