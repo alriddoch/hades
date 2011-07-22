@@ -45,7 +45,16 @@ void connection::start()
 void connection::handle_read(const boost::system::error_code & e,
                              std::size_t bytes)
 {
-    std::cout << "New http data" << std::endl << std::flush;
+    std::cout << "New http data " << bytes << " " << e << std::endl << std::flush;
+    if (e) {
+        // stop
+        std::cout << boost::asio::error::operation_aborted << std::endl << std::flush;
+        return;
+    }
+    m_socket.async_read_some(boost::asio::buffer(m_buffer),
+        bind(&connection::handle_read, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
 }
 
 } // namespace http
