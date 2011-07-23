@@ -35,11 +35,34 @@ connection::connection(boost::asio::io_service & s) :
 void connection::start()
 {
     std::cout << "New http connection" << std::endl << std::flush;
+    boost::asio::async_read_until(m_socket, m_data, "\n",
+        bind(&connection::handle_header_read, this,
+             boost::asio::placeholders::error));
+/*
     m_socket.async_read_some(boost::asio::buffer(m_buffer),
         bind(&connection::handle_read, this,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred));
+ */
+}
 
+void connection::handle_header_read(const boost::system::error_code & e)
+{
+    if (e) {
+        // stop
+        std::cout << boost::asio::error::operation_aborted << std::endl << std::flush;
+        return;
+    }
+    std::streamsize c = m_data.in_avail();
+    char * buf = new char[c + 1];
+    std::istream is(&m_data);
+    is.getline(buf, c);
+
+    std::cout << "HEDDA " << " " << c << " " << buf << " " << e << std::endl << std::flush;
+
+    boost::asio::async_read_until(m_socket, m_data, "\n",
+        bind(&connection::handle_header_read, this,
+             boost::asio::placeholders::error));
 }
 
 void connection::handle_read(const boost::system::error_code & e,

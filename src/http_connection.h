@@ -33,12 +33,14 @@ class connection : private boost::noncopyable
 
     socket_t & socket();
   private:
+    void handle_header_read(const boost::system::error_code& e);
+
     void handle_read(const boost::system::error_code& e,
                      std::size_t bytes_transferred);
 
 
     socket_t m_socket;
-
+    boost::asio::streambuf m_data;
     boost::array<char, 8192> m_buffer;
 };
 
