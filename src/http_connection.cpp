@@ -50,7 +50,6 @@ void connection::handle_header_read(const boost::system::error_code & e)
 {
     if (e) {
         // stop
-        std::cout << boost::asio::error::operation_aborted << std::endl << std::flush;
         return;
     }
     std::streamsize c = m_data.in_avail();
@@ -58,7 +57,13 @@ void connection::handle_header_read(const boost::system::error_code & e)
     std::istream is(&m_data);
     is.getline(buf, c);
 
-    std::cout << "HEDDA " << " " << c << " " << buf << " " << e << std::endl << std::flush;
+    std::string header(buf);
+
+    while (header.size() > 0 && header[header.size() - 1] == '\r') {
+        header.resize(header.size() - 1);
+    }
+
+    std::cout << "HEDDA " << " " << strlen(buf) << std::endl << "BB: " << header << std::endl << std::flush;
 
     boost::asio::async_read_until(m_socket, m_data, "\n",
         bind(&connection::handle_header_read, this,
@@ -71,7 +76,6 @@ void connection::handle_read(const boost::system::error_code & e,
     std::cout << "New http data " << bytes << " " << e << std::endl << std::flush;
     if (e) {
         // stop
-        std::cout << boost::asio::error::operation_aborted << std::endl << std::flush;
         return;
     }
     m_socket.async_read_some(boost::asio::buffer(m_buffer),
