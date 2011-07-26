@@ -35,7 +35,7 @@ connection::connection(boost::asio::io_service & s) :
 void connection::start()
 {
     std::cout << "New http connection" << std::endl << std::flush;
-    boost::asio::async_read_until(m_socket, m_data, "\n",
+    boost::asio::async_read_until(m_socket, m_rdata, "\n",
         bind(&connection::handle_header_read, this,
              boost::asio::placeholders::error));
 /*
@@ -52,9 +52,9 @@ void connection::handle_header_read(const boost::system::error_code & e)
         // stop
         return;
     }
-    std::streamsize c = m_data.in_avail();
+    std::streamsize c = m_rdata.in_avail();
     char * buf = new char[c + 1];
-    std::istream is(&m_data);
+    std::istream is(&m_rdata);
     is.getline(buf, c);
 
     std::string header(buf);
@@ -65,9 +65,19 @@ void connection::handle_header_read(const boost::system::error_code & e)
 
     std::cout << "HEDDA " << " " << strlen(buf) << std::endl << "BB: " << header << std::endl << std::flush;
 
-    boost::asio::async_read_until(m_socket, m_data, "\n",
+    boost::asio::async_read_until(m_socket, m_rdata, "\n",
         bind(&connection::handle_header_read, this,
              boost::asio::placeholders::error));
+
+
+    std::ostream out(&m_wdata);
+
+    out << "HTTP/1.1 200 OK" << std::endl;
+    
+    boost::asio::async_write(m_socket, m_wdata,
+        bind(&connection::handle_write, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
 }
 
 void connection::handle_read(const boost::system::error_code & e,
@@ -82,6 +92,16 @@ void connection::handle_read(const boost::system::error_code & e,
         bind(&connection::handle_read, this,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred));
+}
+
+void connection::handle_write(const boost::system::error_code & e,
+                             std::size_t bytes)
+{
+    std::cout << "Written http data " << bytes << " " << e << std::endl << std::flush;
+    if (e) {
+        // stop
+        return;
+    }
 }
 
 } // namespace http
