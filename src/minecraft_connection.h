@@ -17,7 +17,8 @@
  */
 
 #include <boost/array.hpp>
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/placeholders.hpp>
 #include <boost/noncopyable.hpp>
 
 namespace minecraft {
