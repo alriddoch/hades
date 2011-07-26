@@ -19,6 +19,8 @@
 
 #include "http_connection.h"
 
+#include <boost/asio/read_until.hpp>
+#include <boost/asio/write.hpp>
 #include <boost/bind.hpp>
 
 #include <iostream>
