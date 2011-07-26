@@ -19,6 +19,7 @@
 
 #include "http_connection.h"
 
+#include <boost/asio/placeholders.hpp>
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/bind.hpp>
@@ -90,10 +91,12 @@ void connection::handle_read(const boost::system::error_code & e,
         // stop
         return;
     }
+#if 0
     m_socket.async_read_some(boost::asio::buffer(m_buffer),
         bind(&connection::handle_read, this,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred));
+#endif
 }
 
 void connection::handle_write(const boost::system::error_code & e,

@@ -20,6 +20,7 @@
 
 #include "http_connection.h"
 
+#include <boost/asio/placeholders.hpp>
 #include <boost/bind.hpp>
 
 #include <cassert>

@@ -16,9 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-#include <boost/array.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/placeholders.hpp>
 #include <boost/asio/streambuf.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -47,7 +45,6 @@ class connection : private boost::noncopyable
     socket_t m_socket;
     boost::asio::streambuf m_rdata;
     boost::asio::streambuf m_wdata;
-    boost::array<char, 8192> m_buffer;
 };
 
 inline connection::socket_t & connection::socket()
