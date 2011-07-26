@@ -17,7 +17,11 @@
  */
 
 #include <boost/array.hpp>
-#include <boost/asio.hpp>
+#include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/placeholders.hpp>
+#include <boost/asio/read_until.hpp>
+#include <boost/asio/streambuf.hpp>
+#include <boost/asio/write.hpp>
 #include <boost/noncopyable.hpp>
 
 namespace http {
