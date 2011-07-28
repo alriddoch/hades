@@ -55,32 +55,46 @@ void connection::handle_header_read(const boost::system::error_code & e)
         // stop
         return;
     }
+
+    
     std::streamsize c = m_rdata.in_avail();
-    char * buf = new char[c + 1];
-    std::istream is(&m_rdata);
-    is.getline(buf, c);
+    while (c != 0) {
+        char * buf = new char[c + 1];
+        std::istream is(&m_rdata);
+        is.getline(buf, c);
 
-    std::string header(buf);
+        std::string header(buf);
+        delete [] buf;
 
-    while (header.size() > 0 && header[header.size() - 1] == '\r') {
-        header.resize(header.size() - 1);
+        while (header.size() > 0 && header[header.size() - 1] == '\r') {
+            header.resize(header.size() - 1);
+        }
+
+        std::cout << "HEDDA " << header.size() << " " << std::endl << "BB: " << header << std::endl << std::flush;
+
+        if (header.size() == 0) {
+            std::ostream out(&m_wdata);
+
+            std::cout << "HEDDAS ONE " << std::endl << std::flush;
+
+            out << "HTTP/1.1 200 OK" << std::endl;
+            out << "Content-Type: text/html" << std::endl << std::endl;
+            out << "<html><head></head><body>Text</body></html>" << std::endl;
+    
+            boost::asio::async_write(m_socket, m_wdata,
+                bind(&connection::handle_write, this,
+                     boost::asio::placeholders::error,
+                     boost::asio::placeholders::bytes_transferred));
+            return;
+        }
+
+        c = m_rdata.in_avail();
     }
-
-    std::cout << "HEDDA " << " " << strlen(buf) << std::endl << "BB: " << header << std::endl << std::flush;
 
     boost::asio::async_read_until(m_socket, m_rdata, "\n",
         bind(&connection::handle_header_read, this,
              boost::asio::placeholders::error));
 
-
-    std::ostream out(&m_wdata);
-
-    out << "HTTP/1.1 200 OK" << std::endl;
-    
-    boost::asio::async_write(m_socket, m_wdata,
-        bind(&connection::handle_write, this,
-             boost::asio::placeholders::error,
-             boost::asio::placeholders::bytes_transferred));
 }
 
 void connection::handle_read(const boost::system::error_code & e,
