@@ -79,7 +79,11 @@ void connection::handle_header_read(const boost::system::error_code & e)
 
             out << "HTTP/1.1 200 OK" << std::endl;
             out << "Content-Type: text/html" << std::endl << std::endl;
-            out << "<html><head></head><body>Text</body></html>" << std::endl;
+            out << "<html><head></head><body>" << std::endl;
+            for (int i = 0; i < 100000; ++i) {
+                out << "Textewfihwofwpaefhaqpwoiefhwpoefhpowqifehwpoif" << std::endl;
+            }
+            out << "</body></html>" << std::endl;
     
             boost::asio::async_write(m_socket, m_wdata,
                 bind(&connection::handle_write, this,
