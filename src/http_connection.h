@@ -16,22 +16,20 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/streambuf.hpp>
-#include <boost/noncopyable.hpp>
+#ifndef HADES_HTTP_CONNECTION_H
+#define HADES_HTTP_CONNECTION_H
+
+#include "base_connection.h"
 
 namespace http {
 
-class connection : private boost::noncopyable
+class connection : public base_connection
 {
-  private:
-    typedef boost::asio::ip::tcp::socket socket_t;
   public:
     explicit connection(boost::asio::io_service & s);
 
-    void start();
+    virtual void start();
 
-    socket_t & socket();
   private:
     void handle_header_read(const boost::system::error_code& e);
 
@@ -42,14 +40,10 @@ class connection : private boost::noncopyable
                       std::size_t bytes_transferred);
 
 
-    socket_t m_socket;
     boost::asio::streambuf m_rdata;
     boost::asio::streambuf m_wdata;
 };
 
-inline connection::socket_t & connection::socket()
-{
-  return m_socket;
-}
-
 } // namespace http
+
+#endif // HADES_HTTP_CONNECTION_H

@@ -31,14 +31,14 @@ using boost::bind;
 namespace http {
 
 connection::connection(boost::asio::io_service & s) :
-    m_socket(s)
+    base_connection(s)
 {
 }
 
 void connection::start()
 {
     std::cout << "New http connection" << std::endl << std::flush;
-    boost::asio::async_read_until(m_socket, m_rdata, "\n",
+    boost::asio::async_read_until(this->socket(), m_rdata, "\n",
         bind(&connection::handle_header_read, this,
              boost::asio::placeholders::error));
 /*
@@ -68,7 +68,7 @@ void connection::handle_header_read(const boost::system::error_code & e)
 
     std::cout << "HEDDA " << " " << strlen(buf) << std::endl << "BB: " << header << std::endl << std::flush;
 
-    boost::asio::async_read_until(m_socket, m_rdata, "\n",
+    boost::asio::async_read_until(this->socket(), m_rdata, "\n",
         bind(&connection::handle_header_read, this,
              boost::asio::placeholders::error));
 
@@ -77,7 +77,7 @@ void connection::handle_header_read(const boost::system::error_code & e)
 
     out << "HTTP/1.1 200 OK" << std::endl;
     
-    boost::asio::async_write(m_socket, m_wdata,
+    boost::asio::async_write(this->socket(), m_wdata,
         bind(&connection::handle_write, this,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred));

@@ -16,35 +16,28 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
-#include <boost/array.hpp>
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/noncopyable.hpp>
+#ifndef HADES_MINECRAFT_CONNECTION_H
+#define HADES_MINECRAFT_CONNECTION_H
+
+#include "base_connection.h"
 
 namespace minecraft {
 
-class connection : private boost::noncopyable
+class connection : public base_connection
 {
-  private:
-    typedef boost::asio::ip::tcp::socket socket_t;
   public:
     explicit connection(boost::asio::io_service & s);
 
-    void start();
+    virtual void start();
 
-    socket_t & socket();
   private:
     void handle_read(const boost::system::error_code& e,
                      std::size_t bytes_transferred);
 
 
-    socket_t m_socket;
-
     boost::array<char, 8192> m_buffer;
 };
 
-inline connection::socket_t & connection::socket()
-{
-  return m_socket;
-}
-
 } // namespace minecraft
+
+#endif // HADES_MINECRAFT_CONNECTION_H
