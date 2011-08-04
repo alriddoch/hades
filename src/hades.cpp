@@ -16,6 +16,7 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+#include "atlas_listener.h"
 #include "http_listener.h"
 #include "minecraft_listener.h"
 #include "socket_manager.h"
@@ -27,6 +28,7 @@ int main(int argc, char ** argv)
     socket_manager cm;
     minecraft::listener ml(io_service, cm);
     http::listener hl(io_service, cm);
+    atlas::listener al(io_service, cm);
 
     io_service.run();
 
