@@ -47,6 +47,22 @@ AC_CHECK_FUNC(pthread_mutex_trylock, ,
 
 PKG_PROG_PKG_CONFIG
 
+PKG_CHECK_MODULES(ATLAS, atlascpp-0.6,
+    [
+        CPPFLAGS="$CPPFLAGS $ATLAS_CFLAGS"
+        LIBS="$LIBS $ATLAS_LIBS"
+    ],
+    [
+        AC_MSG_RESULT([no])
+        AC_MSG_ERROR([
+Cannot find valid versions of required WorldForge libraries:
+$ATLAS_PKG_ERRORS
+Perhaps you should add the directory containing the missing libraries to the
+PKG_CONFIG_PATH environment variable.
+Please see http://worldforge.org/dev/eng/servers/cyphesis for details of the
+libraries required and where to obtain them.])
+    ])
+
 AC_CONFIG_FILES([
 	Makefile
 	src/Makefile
