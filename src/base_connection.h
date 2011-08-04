@@ -21,9 +21,12 @@
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/streambuf.hpp>
+#include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 
-class base_connection : private boost::noncopyable
+class base_connection
+  : public boost::enable_shared_from_this<base_connection>,
+    private boost::noncopyable
 {
   private:
     typedef boost::asio::ip::tcp::socket socket_t;

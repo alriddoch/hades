@@ -19,6 +19,8 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/noncopyable.hpp>
 
+class socket_manager;
+
 namespace http {
 
 class connection;
@@ -26,15 +28,17 @@ class connection;
 class listener : private boost::noncopyable
 {
   public:
-    listener(boost::asio::io_service & io_service);
+    listener(boost::asio::io_service & io_service,
+             socket_manager &);
   
   private:
     void setup_accept();
     void handle_accept(const boost::system::error_code& e);
 
     boost::asio::io_service & m_io_service;
+    socket_manager & m_sm;
     boost::asio::ip::tcp::acceptor m_acceptor;
-    connection * m_new_connection;
+    boost::shared_ptr<connection> m_new_connection;
 };
 
 } // namespace http

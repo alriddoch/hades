@@ -30,7 +30,7 @@ using boost::bind;
 
 namespace minecraft {
 
-listener::listener(boost::asio::io_service & s) :
+listener::listener(boost::asio::io_service & s, socket_manager &) :
     m_io_service(s),
     m_acceptor(s, tcp::endpoint(tcp::v4(), 25565))
 {

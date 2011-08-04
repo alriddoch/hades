@@ -18,12 +18,15 @@
 
 #include "http_listener.h"
 #include "minecraft_listener.h"
+#include "socket_manager.h"
 
 int main(int argc, char ** argv)
 {
     boost::asio::io_service io_service;
-    minecraft::listener ml(io_service);
-    http::listener hl(io_service);
+
+    socket_manager cm;
+    minecraft::listener ml(io_service, cm);
+    http::listener hl(io_service, cm);
 
     io_service.run();
 

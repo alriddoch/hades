@@ -19,6 +19,8 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/noncopyable.hpp>
 
+class socket_manager;
+
 namespace minecraft {
 
 class connection;
@@ -26,7 +28,8 @@ class connection;
 class listener : private boost::noncopyable
 {
   public:
-    listener(boost::asio::io_service & io_service);
+    listener(boost::asio::io_service & io_service,
+             socket_manager &);
   
   private:
     void setup_accept();
