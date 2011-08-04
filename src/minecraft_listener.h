@@ -36,8 +36,9 @@ class listener : private boost::noncopyable
     void handle_accept(const boost::system::error_code& e);
 
     boost::asio::io_service & m_io_service;
+    socket_manager & m_sm;
     boost::asio::ip::tcp::acceptor m_acceptor;
-    connection * m_new_connection;
+    boost::shared_ptr<connection> m_new_connection;
 };
 
 } // namespace minecraft

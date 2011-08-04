@@ -19,6 +19,7 @@
 #include "minecraft_listener.h"
 
 #include "minecraft_connection.h"
+#include "socket_manager.h"
 
 #include <boost/asio/placeholders.hpp>
 #include <boost/bind.hpp>
@@ -30,8 +31,9 @@ using boost::bind;
 
 namespace minecraft {
 
-listener::listener(boost::asio::io_service & s, socket_manager &) :
+listener::listener(boost::asio::io_service & s, socket_manager & sm) :
     m_io_service(s),
+    m_sm(sm),
     m_acceptor(s, tcp::endpoint(tcp::v4(), 25565))
 {
   setup_accept();
@@ -39,7 +41,7 @@ listener::listener(boost::asio::io_service & s, socket_manager &) :
 
 void listener::setup_accept()
 {
-  m_new_connection = new connection(m_io_service);
+  m_new_connection.reset(new connection(m_io_service));
   m_acceptor.async_accept(m_new_connection->socket(),
       bind(&listener::handle_accept, this, boost::asio::placeholders::error));
 }
@@ -47,9 +49,10 @@ void listener::setup_accept()
 void listener::handle_accept(const boost::system::error_code & e)
 {
   if (!e) {
-    assert(m_new_connection != 0);
+    assert(m_new_connection.get() != 0);
     m_new_connection->start();
     // accept
+    m_sm.add(m_new_connection);
 
     setup_accept();
   }
