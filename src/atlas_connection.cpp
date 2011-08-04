@@ -19,7 +19,10 @@
 
 #include "atlas_connection.h"
 
+#include <Atlas/Net/Stream.h>
+
 #include <boost/asio/placeholders.hpp>
+#include <boost/asio/read.hpp>
 #include <boost/asio/read_until.hpp>
 #include <boost/asio/write.hpp>
 #include <boost/bind.hpp>
@@ -31,21 +34,24 @@ using boost::bind;
 namespace atlas {
 
 connection::connection(boost::asio::io_service & s) :
-    base_connection(s)
+    base_connection(s), m_ios(&m_data), m_negotiate(0), m_codec(0)
 {
+    m_negotiate = new Atlas::Net::StreamAccept("hades foo", m_ios);
 }
 
 void connection::start()
 {
     std::cout << "New atlas connection" << std::endl << std::flush;
+    m_negotiate->poll(false);
+    // Check if there is something to write? I kinda know there is....
+    boost::asio::async_write(this->socket(), m_data,
+        bind(&connection::negotiate_write, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
+/*
     boost::asio::async_read_until(this->socket(), m_data, "\n",
         bind(&connection::handle_header_read, this,
              boost::asio::placeholders::error));
-/*
-    m_socket.async_read_some(boost::asio::buffer(m_buffer),
-        bind(&connection::handle_read, this,
-             boost::asio::placeholders::error,
-             boost::asio::placeholders::bytes_transferred));
  */
 }
 
@@ -85,10 +91,6 @@ void connection::handle_header_read(const boost::system::error_code & e)
             }
             out << "</body></html>" << std::endl;
     
-            boost::asio::async_write(this->socket(), m_data,
-                bind(&connection::handle_write, this,
-                     boost::asio::placeholders::error,
-                     boost::asio::placeholders::bytes_transferred));
             return;
         }
 
@@ -101,14 +103,19 @@ void connection::handle_header_read(const boost::system::error_code & e)
 
 }
 
-void connection::handle_read(const boost::system::error_code & e,
+void connection::negotiate_read(const boost::system::error_code & e,
                              std::size_t bytes)
 {
-    std::cout << "New atlas data " << bytes << " " << e << std::endl << std::flush;
+    std::cout << "New neg data " << bytes << " " << e << std::endl << std::flush;
+    m_negotiate->poll(true);
     if (e) {
         // stop
         return;
     }
+    boost::asio::async_read_until(this->socket(), m_data, "\n",
+        bind(&connection::negotiate_read, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
 #if 0
     m_socket.async_read_some(boost::asio::buffer(m_buffer),
         bind(&connection::handle_read, this,
@@ -117,10 +124,14 @@ void connection::handle_read(const boost::system::error_code & e,
 #endif
 }
 
-void connection::handle_write(const boost::system::error_code & e,
-                             std::size_t bytes)
+void connection::negotiate_write(const boost::system::error_code & e,
+                                 std::size_t bytes)
 {
-    std::cout << "Written atlas data " << bytes << " " << e << std::endl << std::flush;
+    std::cout << "Written neg data " << bytes << " " << e << std::endl << std::flush;
+    boost::asio::async_read_until(this->socket(), m_data, "\n",
+        bind(&connection::negotiate_read, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
     if (e) {
         // stop
         return;

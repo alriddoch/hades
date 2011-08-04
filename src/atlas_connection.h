@@ -21,6 +21,16 @@
 
 #include "base_connection.h"
 
+#include <iostream>
+
+namespace Atlas {
+  class Codec;
+  namespace Objects {
+    class ObjectsEncoder;
+  }
+  class Negotiate;
+}
+
 namespace atlas {
 
 class connection : public base_connection
@@ -33,14 +43,17 @@ class connection : public base_connection
   private:
     void handle_header_read(const boost::system::error_code& e);
 
-    void handle_read(const boost::system::error_code& e,
-                     std::size_t bytes_transferred);
+    void negotiate_read(const boost::system::error_code& e,
+                        std::size_t bytes_transferred);
 
-    void handle_write(const boost::system::error_code& e,
-                      std::size_t bytes_transferred);
+    void negotiate_write(const boost::system::error_code& e,
+                         std::size_t bytes_transferred);
 
 
     boost::asio::streambuf m_data;
+    std::iostream m_ios;
+    Atlas::Negotiate * m_negotiate;
+    Atlas::Codec * m_codec;
 };
 
 } // namespace atlas
