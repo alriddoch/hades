@@ -111,9 +111,12 @@ void connection::negotiate_read(const boost::system::error_code & e,
         // stop
         return;
     }
+
     m_negotiate->poll(true);
-    boost::asio::async_read_until(this->socket(), m_data, "\n",
-        bind(&connection::negotiate_read, this,
+
+    // There may be nothing to write
+    boost::asio::async_write(this->socket(), m_data,
+        bind(&connection::negotiate_write, this,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred));
 #if 0
@@ -132,6 +135,11 @@ void connection::negotiate_write(const boost::system::error_code & e,
         // stop
         return;
     }
+
+    if (m_negotiate->getState() != Atlas::Negotiate::IN_PROGRESS) {
+        std::cout << "Neg done" << std::endl;
+    }
+
     boost::asio::async_read_until(this->socket(), m_data, "\n",
         bind(&connection::negotiate_read, this,
              boost::asio::placeholders::error,
