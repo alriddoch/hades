@@ -16,6 +16,9 @@
  * 3. This notice may not be removed or altered from any source distribution.
  */
 
+#ifndef HADES_HTTP_LISTENER_H
+#define HADES_HTTP_LISTENER_H
+
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -42,3 +45,5 @@ class listener : private boost::noncopyable
 };
 
 } // namespace http
+
+#endif // HADES_HTTP_LISTENER_H
