@@ -34,7 +34,7 @@ namespace atlas {
 listener::listener(boost::asio::io_service & s, socket_manager & sm) :
     m_io_service(s),
     m_sm(sm),
-    m_acceptor(s, tcp::endpoint(tcp::v4(), 8080))
+    m_acceptor(s, tcp::endpoint(tcp::v4(), 6768))
 {
   setup_accept();
 }
