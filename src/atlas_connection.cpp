@@ -104,14 +104,14 @@ void connection::handle_header_read(const boost::system::error_code & e)
 }
 
 void connection::negotiate_read(const boost::system::error_code & e,
-                             std::size_t bytes)
+                                std::size_t bytes)
 {
     std::cout << "New neg data " << bytes << " " << e << std::endl << std::flush;
-    m_negotiate->poll(true);
     if (e) {
         // stop
         return;
     }
+    m_negotiate->poll(true);
     boost::asio::async_read_until(this->socket(), m_data, "\n",
         bind(&connection::negotiate_read, this,
              boost::asio::placeholders::error,
@@ -128,14 +128,14 @@ void connection::negotiate_write(const boost::system::error_code & e,
                                  std::size_t bytes)
 {
     std::cout << "Written neg data " << bytes << " " << e << std::endl << std::flush;
-    boost::asio::async_read_until(this->socket(), m_data, "\n",
-        bind(&connection::negotiate_read, this,
-             boost::asio::placeholders::error,
-             boost::asio::placeholders::bytes_transferred));
     if (e) {
         // stop
         return;
     }
+    boost::asio::async_read_until(this->socket(), m_data, "\n",
+        bind(&connection::negotiate_read, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
 }
 
 } // namespace atlas
