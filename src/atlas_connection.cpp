@@ -18,6 +18,7 @@
 
 #include "atlas_connection.h"
 
+#include <Atlas/Codec.h>
 #include <Atlas/Net/Stream.h>
 #include <Atlas/Objects/Root.h>
 #include <Atlas/Objects/SmartPtr.h>
@@ -30,7 +31,20 @@
 
 #include <iostream>
 
+static void foo()
+{
+    // int i = bind(boost::mem_fn(&atlas::connection::check), (atlas::connection*)0);
+}
+
 using boost::bind;
+
+namespace boost {
+ namespace asio {
+  template <> struct is_match_condition<
+      typeof(bind(boost::mem_fn(&atlas::connection::check), (atlas::connection*)0, _1, _2))
+                    > : public boost::true_type {};
+ }
+}
 
 namespace atlas {
 
@@ -128,6 +142,17 @@ void connection::negotiate_read(const boost::system::error_code & e,
 #endif
 }
 
+std::pair<connection::iterator, bool> connection::check(connection::iterator b,
+                                                        connection::iterator e)
+{
+    assert(m_codec != 0);
+    std::cout << "Data" << std::endl;
+
+    m_codec->poll();
+
+    return std::make_pair(e, false);
+}
+
 void connection::negotiate_write(const boost::system::error_code & e,
                                  std::size_t bytes)
 {
@@ -143,11 +168,12 @@ void connection::negotiate_write(const boost::system::error_code & e,
             m_codec = m_negotiate->getCodec(*this);
 
             boost::asio::async_read_until(this->socket(), m_data,
-                &connection::check,
+                bind(boost::mem_fn(&connection::check), this, _1, _2),
                 bind(&connection::stream_read, this,
-                    boost::asio::placeholders::error,
-                    boost::asio::placeholders::bytes_transferred));
+                     boost::asio::placeholders::error,
+                     boost::asio::placeholders::bytes_transferred));
         }
+        return;
     }
 
     boost::asio::async_read_until(this->socket(), m_data, "\n",

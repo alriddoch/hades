@@ -57,12 +57,9 @@ class connection : public base_connection,
     void stream_read(const boost::system::error_code& e,
                      std::size_t bytes_transferred);
 
-   typedef boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type> iterator;
+    typedef boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type> iterator;
 
-    static std::pair<iterator, bool> check(iterator b, iterator e)
-    {
-        return std::make_pair(e, false);
-    }
+    std::pair<iterator, bool> check(iterator b, iterator e);
 
     void objectArrived(const Atlas::Objects::Root & obj);
 
