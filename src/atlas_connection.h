@@ -21,6 +21,10 @@
 
 #include "base_connection.h"
 
+#include <Atlas/Objects/Decoder.h>
+
+#include <boost/asio/buffers_iterator.hpp>
+
 #include <iostream>
 
 namespace Atlas {
@@ -33,7 +37,8 @@ namespace Atlas {
 
 namespace atlas {
 
-class connection : public base_connection
+class connection : public base_connection,
+                   public Atlas::Objects::ObjectsDecoder
 {
   public:
     explicit connection(boost::asio::io_service & s);
@@ -49,11 +54,24 @@ class connection : public base_connection
     void negotiate_write(const boost::system::error_code& e,
                          std::size_t bytes_transferred);
 
+    void stream_read(const boost::system::error_code& e,
+                     std::size_t bytes_transferred);
+
+   typedef boost::asio::buffers_iterator<boost::asio::streambuf::const_buffers_type> iterator;
+
+    static std::pair<iterator, bool> check(iterator b, iterator e)
+    {
+        return std::make_pair(e, false);
+    }
+
+    void objectArrived(const Atlas::Objects::Root & obj);
+
 
     boost::asio::streambuf m_data;
     std::iostream m_ios;
     Atlas::Negotiate * m_negotiate;
     Atlas::Codec * m_codec;
+    Atlas::Objects::ObjectsEncoder * m_encoder;
 };
 
 } // namespace atlas

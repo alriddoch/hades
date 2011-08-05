@@ -1,4 +1,3 @@
-
 /* Copyright (C) 2011 Alistair Riddoch <alriddoch@googlemail.com>
  * This software is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,6 +19,8 @@
 #include "atlas_connection.h"
 
 #include <Atlas/Net/Stream.h>
+#include <Atlas/Objects/Root.h>
+#include <Atlas/Objects/SmartPtr.h>
 
 #include <boost/asio/placeholders.hpp>
 #include <boost/asio/read.hpp>
@@ -138,12 +139,37 @@ void connection::negotiate_write(const boost::system::error_code & e,
 
     if (m_negotiate->getState() != Atlas::Negotiate::IN_PROGRESS) {
         std::cout << "Neg done" << std::endl;
+        if (m_negotiate->getState() == Atlas::Negotiate::SUCCEEDED) {
+            m_codec = m_negotiate->getCodec(*this);
+
+            boost::asio::async_read_until(this->socket(), m_data,
+                &connection::check,
+                bind(&connection::stream_read, this,
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred));
+        }
     }
 
     boost::asio::async_read_until(this->socket(), m_data, "\n",
         bind(&connection::negotiate_read, this,
              boost::asio::placeholders::error,
              boost::asio::placeholders::bytes_transferred));
+}
+
+void connection::stream_read(const boost::system::error_code & e,
+                                std::size_t bytes)
+{
+    std::cout << "New stream read " << bytes << " " << e << std::endl << std::flush;
+    if (e) {
+        // stop
+        return;
+    }
+}
+
+void connection::objectArrived(const Atlas::Objects::Root & obj)
+{
+    std::cout << "object arrived " << obj->getParents().front()
+              << std::endl;
 }
 
 } // namespace atlas
