@@ -148,9 +148,7 @@ std::pair<connection::iterator, bool> connection::check(connection::iterator b,
     assert(m_codec != 0);
     std::cout << "Data" << std::endl;
 
-    m_codec->poll();
-
-    return std::make_pair(e, false);
+    return std::make_pair(e, true);
 }
 
 void connection::negotiate_write(const boost::system::error_code & e,
@@ -167,8 +165,11 @@ void connection::negotiate_write(const boost::system::error_code & e,
         if (m_negotiate->getState() == Atlas::Negotiate::SUCCEEDED) {
             m_codec = m_negotiate->getCodec(*this);
 
-            boost::asio::async_read_until(this->socket(), m_data,
-                bind(boost::mem_fn(&connection::check), this, _1, _2),
+            m_codec->streamBegin();
+
+            boost::asio::async_read(this->socket(), m_data,
+                boost::asio::transfer_at_least(1),
+                // bind(boost::mem_fn(&connection::check), this, _1, _2),
                 bind(&connection::stream_read, this,
                      boost::asio::placeholders::error,
                      boost::asio::placeholders::bytes_transferred));
@@ -190,6 +191,14 @@ void connection::stream_read(const boost::system::error_code & e,
         // stop
         return;
     }
+    m_codec->poll();
+
+    boost::asio::async_read(this->socket(), m_data,
+        boost::asio::transfer_at_least(1),
+        // bind(boost::mem_fn(&connection::check), this, _1, _2),
+        bind(&connection::stream_read, this,
+             boost::asio::placeholders::error,
+             boost::asio::placeholders::bytes_transferred));
 }
 
 void connection::objectArrived(const Atlas::Objects::Root & obj)
